@@ -20,7 +20,7 @@ func handleReserve(c *Connection, cmd string) (*Job, error) {
 	}
 	var id int
 	var bodyLen int
-	if strings.HasPrefix(resp, `RESERVED`) {
+	if strings.HasPrefix(resp, "RESERVED") {
 		_, err := fmt.Sscanf(resp, "RESERVED %d %d\r\n", &id, &bodyLen)
 		fmt.Println(id, bodyLen)
 		if err != nil {
@@ -61,11 +61,11 @@ func (c *Connection) ReserveWithTimeout(timeout time.Duration) (*Job, error) {
 }
 
 func (c *Connection) Reserve() (*Job, error) {
-	return handleReserve(c, `reserve\r\n`)
+	return handleReserve(c, "reserve\r\n")
 }
 
 func (c *Connection) Ignore(tubename string) (int, error) {
-	cmd := fmt.Sprintf(`ignore %s\r\n`, tubename)
+	cmd := fmt.Sprintf("ignore %s\r\n", tubename)
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return -1, err
@@ -100,7 +100,7 @@ func (c *Connection) Use(tubename string) error {
 	cmd := fmt.Sprintf("use %s", tubename)
 	res, _ := c.GetResp(cmd)
 	fmt.Println(res)
-	return assertExpected(fmt.Sprintf(`USING %s\r\n`, tubename), res)
+	return assertExpected(fmt.Sprintf("USING %s\r\n", tubename), res)
 }
 
 func (c *Connection) PutBytes(data []byte, priority int, delay, timeToRun time.Duration) (int, error) {
@@ -114,34 +114,34 @@ func (c *Connection) PutString(data string, priority int, delay, timeToRun time.
 }
 
 func (c *Connection) Release(id int, priority int, delay time.Duration) error {
-	cmd := fmt.Sprintf(`release %d %d %d\r\n`, id, priority, delay.Seconds())
+	cmd := fmt.Sprintf("release %d %d %d\r\n", id, priority, int(delay.Seconds()))
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return err
 	}
-	return assertExpected(`RELEASED\r\n`, resp)
+	return assertExpected("RELEASED\r\n", resp)
 }
 
 func (c *Connection) Bury(id, priority int) error {
-	cmd := fmt.Sprintf(`bury %d %d\r\n`, id, priority)
+	cmd := fmt.Sprintf("bury %d %d\r\n", id, priority)
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return err
 	}
-	return assertExpected(`BURIED\r\n`, resp)
+	return assertExpected("BURIED\r\n", resp)
 }
 
 func (c *Connection) KickJob(id int) (error) {
-	cmd := fmt.Sprintf(`kick-job %d\r\n`, id)
+	cmd := fmt.Sprintf("kick-job %d\r\n", id)
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return err
 	}
-	return assertExpected(`KICKED\r\n`, resp)
+	return assertExpected("KICKED\r\n", resp)
 }
 
 func (c *Connection) Kick(maxJobs int) (int, error) {
-	cmd := fmt.Sprintf(`kick %d\r\n`, maxJobs)
+	cmd := fmt.Sprintf("kick %d\r\n", maxJobs)
 
 	resp, err := c.GetResp(cmd)
 	if err != nil {
@@ -149,7 +149,7 @@ func (c *Connection) Kick(maxJobs int) (int, error) {
 	}
 
 	var id int
-	if strings.HasPrefix(resp, `KICKED`) {
+	if strings.HasPrefix(resp, "KICKED") {
 		_, err := fmt.Sscanf(resp, "KICKED %d\r\n", &id)
 		if err != nil {
 			return 0, UnexpectedResponse
@@ -160,24 +160,25 @@ func (c *Connection) Kick(maxJobs int) (int, error) {
 }
 
 func (c *Connection) Touch(id int) error {
-	cmd := fmt.Sprintf(`touch %d\r\n`, id)
+	cmd := fmt.Sprintf("touch %d\r\n", id)
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return err
 	}
-	return assertExpected(`TOUCHED\r\n`, resp)
+	return assertExpected("TOUCHED\r\n", resp)
 }
 
 func (c *Connection) Delete(id int) error {
-	cmd := fmt.Sprintf(`delete %d\r\n`, id)
+	cmd := fmt.Sprintf("delete %d\r\n", id)
 	resp, err := c.GetResp(cmd)
 	if err != nil {
 		return err
 	}
-	return assertExpected(`DELETED\r\n`, resp)
+	return assertExpected("DELETED\r\n", resp)
 }
 
 func (c *Connection) Quit() {
 	defer c.connection.Close()
-	_, _ = c.GetResp(`quit \r\n`)
+	_, _ = c.GetResp("quit \r\n")
 }
+

@@ -52,12 +52,12 @@ func (c *Connection) SendAll(msg []byte) (int, error) {
 		forBuff := len(forWrite) >= minBuffer
 		if forBuff {
 			n, err = sendAllBuffer(c, forWrite)
-			if err != nil {
+			if err != nil && !isNetTempErr(err) {
 				return written, err
 			}
 		} else {
 			n, err = sendAllNoBuffer(c, forWrite)
-			if err != nil {
+			if err != nil && !isNetTempErr(err) {
 				return written, err
 			}
 		}
@@ -109,4 +109,11 @@ func (c *Connection) readBody(msgLen int) ([]byte, error) {
 		return nil, err
 	}
 	return body[:n-2], nil
+}
+
+func isNetTempErr(err error) bool {
+	if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+		return true
+	}
+	return false
 }

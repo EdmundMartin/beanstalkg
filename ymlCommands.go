@@ -28,19 +28,19 @@ func (c *Connection) getYMLResp(cmd string) ([]byte, error) {
 
 
 func (c *Connection) StatsJob(id int) ([]byte, error) {
-	cmd := fmt.Sprintf(`stats-job %d\r\n`, id)
+	cmd := fmt.Sprintf("stats-job %d\r\n", id)
 	return c.getYMLResp(cmd)
 }
 
 func (c *Connection) StatsTube(tubename string) ([]byte, error) {
-	cmd := fmt.Sprintf(`stats-tube %s\r\n`, tubename)
+	cmd := fmt.Sprintf("stats-tube %s\r\n", tubename)
 	return c.getYMLResp(cmd)
 }
 
 func (c *Connection) Stats() ([]byte, error) {
-	return c.getYMLResp(`stats\r\n`)
+	return c.getYMLResp("stats\r\n")
 }
 
 func (c *Connection) ListTubes() ([]byte, error) {
-	return c.getYMLResp(`list-tubes\r\n`)
+	return c.getYMLResp("list-tubes\r\n")
 }
