@@ -32,6 +32,7 @@ func dialConnection(c *Connection) (*net.TCPConn, error) {
 	return tcpConn, nil
 }
 
+// NewConnection dials a beanstalk connection and returns a pointer to a beanstalkg.Connection
 func NewConnection(host string, port int) (*Connection, error) {
 	conn := &Connection{Host: host, Port: port}
 	connect, err := dialConnection(conn)
@@ -39,7 +40,6 @@ func NewConnection(host string, port int) (*Connection, error) {
 		return nil, err
 	}
 	conn.connection = connect
-	fmt.Println(connect)
 	return conn, nil
 }
 

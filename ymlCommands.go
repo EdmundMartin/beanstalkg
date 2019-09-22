@@ -37,8 +37,13 @@ func (c *Connection) StatsTube(tubename string) ([]byte, error) {
 	return c.getYMLResp(cmd)
 }
 
-func (c *Connection) Stats() ([]byte, error) {
-	return c.getYMLResp("stats\r\n")
+func (c *Connection) Stats() (*InstanceStats, error) {
+	b, err := c.getYMLResp("stats\r\n")
+	if err != nil {
+		return nil, err
+	}
+	res := statsParser(b)
+	return res, nil
 }
 
 func (c *Connection) ListTubes() ([]byte, error) {
