@@ -32,9 +32,13 @@ func (c *Connection) StatsJob(id int) ([]byte, error) {
 	return c.getYMLResp(cmd)
 }
 
-func (c *Connection) StatsTube(tubename string) ([]byte, error) {
+func (c *Connection) StatsTube(tubename string) (*TubeStats, error) {
 	cmd := fmt.Sprintf("stats-tube %s\r\n", tubename)
-	return c.getYMLResp(cmd)
+	b, err := c.getYMLResp(cmd)
+	if err != nil {
+		return nil, err
+	}
+	return tubeStatsParser(b), nil
 }
 
 func (c *Connection) Stats() (*InstanceStats, error) {
@@ -46,6 +50,10 @@ func (c *Connection) Stats() (*InstanceStats, error) {
 	return res, nil
 }
 
-func (c *Connection) ListTubes() ([]byte, error) {
-	return c.getYMLResp("list-tubes\r\n")
+func (c *Connection) ListTubes() ([]string, error) {
+	b, err := c.getYMLResp("list-tubes\r\n")
+	if err != nil {
+		return []string{}, err
+	}
+	return listParser(b), nil
 }
