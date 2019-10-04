@@ -22,7 +22,25 @@ func handleReserve(c *Connection, cmd string) (*Job, error) {
 	var bodyLen int
 	if strings.HasPrefix(resp, "RESERVED") {
 		_, err := fmt.Sscanf(resp, "RESERVED %d %d\r\n", &id, &bodyLen)
-		fmt.Println(id, bodyLen)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, stringToError(resp)
+	}
+	body, err := c.readBody(bodyLen)
+	return &Job{ID: id, Body: body, conn: c}, err
+}
+
+func handlePeek(c *Connection, cmd string) (*Job, error) {
+	resp, err := c.GetResp(cmd)
+	if err != nil {
+		return nil, err
+	}
+	var id int
+	var bodyLen int
+	if strings.HasPrefix(resp, "FOUND") {
+		_, err := fmt.Sscanf(resp, "FOUND %d %d\r\n", &id, &bodyLen)
 		if err != nil {
 			return nil, err
 		}
@@ -177,8 +195,53 @@ func (c *Connection) Delete(id int) error {
 	return assertExpected("DELETED\r\n", resp)
 }
 
-func (c *Connection) Quit() {
+func (c *Connection) PeekJob(id int) (*Job, error) {
+	resp, err := handlePeek(c, fmt.Sprintf("peek %d\r\n", id))
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Connection) PeekReady() (*Job, error) {
+	resp, err := handlePeek(c, "peek-ready\r\n")
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Connection) PeekDelayed() (*Job, error) {
+	resp, err := handlePeek(c, "peek-delayed\r\n")
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Connection) PeekBuried() (*Job, error)  {
+	resp, err := handlePeek(c, "peek-buried\r\n")
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Connection) PauseTube(name string, delay time.Duration) error {
+	cmd := fmt.Sprintf("pause-tube %s %d\r\n", name, int(delay.Seconds()))
+	resp, err := c.GetResp(cmd)
+	if err != nil {
+		return err
+	}
+	return assertExpected("PAUSED\r\n", resp)
+}
+
+func (c *Connection) Quit() error {
 	defer c.connection.Close()
-	_, _ = c.GetResp("quit \r\n")
+	_, err := c.GetResp("quit\r\n")
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
